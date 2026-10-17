@@ -1,0 +1,14 @@
+.header {
+  width: 100%;
+  height: 4em;
+}
+
+.logo {
+  margin-left: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.description {
+  color: rgb(21, 4, 100);
+}

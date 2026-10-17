@@ -1,15 +1,15 @@
 import { useState } from "react";
 import EstilosGlobais from "./styles/EstilosGlobais";
 import "./App.css";
+import Header from "./components/header";
 
 function App() {
   return (
     <>
       <EstilosGlobais />
+      <Header />
       <div className="container">
-        <div className="form-container">
-          <h1>Listagem de Gastos</h1>
-        </div>
+        <div className="form-container"></div>
       </div>
     </>
   );
