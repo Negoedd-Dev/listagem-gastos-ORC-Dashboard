@@ -967,18 +967,211 @@
 // Gráfico de barras mostrando o total em R$ por modalidade (Crédito/Débito).Integração com Chart.js via react-chartjs-2.
 // Dashboard visual junto com tabela, filtro e paginação.
 
+// import React, { useState } from "react";
+// import Tesseract from "tesseract.js";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+// import { Bar } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
+
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// );
+
+// export default function OCRApp() {
+//   const [images, setImages] = useState([]);
+//   const [dados, setDados] = useState([]);
+//   const [search, setSearch] = useState("");
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const itemsPerPage = 5;
+
+//   const handleImageUpload = (event) => {
+//     const files = Array.from(event.target.files);
+//     setImages(files.map((f) => URL.createObjectURL(f)));
+//     files.forEach((file) => processImage(file));
+//   };
+
+//   const processImage = (file) => {
+//     Tesseract.recognize(file, "por", {
+//       logger: (m) => console.log(m),
+//     }).then(({ data: { text } }) => {
+//       parseDados(text);
+//     });
+//   };
+
+//   const parseDados = (textoExtraido) => {
+//     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
+//     const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
+//     const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
+//     const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
+//     const modalidade = textoExtraido.includes("CRÉDITO")
+//       ? "Crédito"
+//       : textoExtraido.includes("DÉBITO")
+//         ? "Débito"
+//         : "";
+
+//     setDados((prev) => [
+//       ...prev,
+//       { Data: data, Hora: hora, Valor: valorNum || 0, Modalidade: modalidade },
+//     ]);
+//   };
+
+//   // Filtro
+//   const filteredData = dados.filter((d) =>
+//     Object.values(d).some((val) =>
+//       String(val).toLowerCase().includes(search.toLowerCase()),
+//     ),
+//   );
+
+//   // Paginação
+//   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+//   const startIndex = (currentPage - 1) * itemsPerPage;
+//   const paginatedData = filteredData.slice(
+//     startIndex,
+//     startIndex + itemsPerPage,
+//   );
+
+//   const goToPage = (page) => {
+//     if (page >= 1 && page <= totalPages) setCurrentPage(page);
+//   };
+
+//   // Gráfico: somatório por modalidade
+//   const somaCredito = dados
+//     .filter((d) => d.Modalidade === "Crédito")
+//     .reduce((acc, d) => acc + d.Valor, 0);
+//   const somaDebito = dados
+//     .filter((d) => d.Modalidade === "Débito")
+//     .reduce((acc, d) => acc + d.Valor, 0);
+
+//   const chartData = {
+//     labels: ["Crédito", "Débito"],
+//     datasets: [
+//       {
+//         label: "Total em R$",
+//         data: [somaCredito, somaDebito],
+//         backgroundColor: ["#4CAF50", "#2196F3"],
+//       },
+//     ],
+//   };
+
+//   return (
+//     <div style={{ padding: "20px" }}>
+//       <h2>OCR de Comprovantes (Múltiplos)</h2>
+//       <input
+//         type="file"
+//         accept="image/*"
+//         multiple
+//         onChange={handleImageUpload}
+//       />
+
+//       <h3>Filtro de busca:</h3>
+//       <input
+//         type="text"
+//         placeholder="Pesquisar por data, valor ou modalidade..."
+//         value={search}
+//         onChange={(e) => setSearch(e.target.value)}
+//         style={{ marginBottom: "10px", width: "300px" }}
+//       />
+
+//       <h3>Dados estruturados:</h3>
+//       <table border="1" cellPadding="5">
+//         <thead>
+//           <tr>
+//             <th>Data</th>
+//             <th>Hora</th>
+//             <th>Valor</th>
+//             <th>Modalidade</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {paginatedData.map((d, i) => (
+//             <tr key={i}>
+//               <td>{d.Data}</td>
+//               <td>{d.Hora}</td>
+//               <td>{d.Valor.toFixed(2)}</td>
+//               <td>{d.Modalidade}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+
+//       {totalPages > 1 && (
+//         <div style={{ marginTop: "10px" }}>
+//           <button
+//             onClick={() => goToPage(currentPage - 1)}
+//             disabled={currentPage === 1}
+//           >
+//             Anterior
+//           </button>
+//           <span style={{ margin: "0 10px" }}>
+//             Página {currentPage} de {totalPages}
+//           </span>
+//           <button
+//             onClick={() => goToPage(currentPage + 1)}
+//             disabled={currentPage === totalPages}
+//           >
+//             Próxima
+//           </button>
+//         </div>
+//       )}
+
+//       {dados.length > 0 && (
+//         <>
+//           <div style={{ marginTop: "20px", width: "500px" }}>
+//             <h3>Análise: Total por Modalidade</h3>
+//             <Bar data={chartData} />
+//           </div>
+
+//           <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+//             <button onClick={() => alert("Excel export aqui")}>
+//               Exportar para Excel
+//             </button>
+//             <button onClick={() => alert("CSV export aqui")}>
+//               Exportar para CSV
+//             </button>
+//             <button onClick={() => alert("PDF export aqui")}>
+//               Exportar para PDF
+//             </button>
+//           </div>
+//         </>
+//       )}
+//     </div>
+//   );
+// }
+//* /////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão: 10.0
+//* O que esse upgrade traz
+//* Gráfico de linha mostrando a evolução dos gastos ao longo dos dias.Cada ponto no gráfico representa o somatório dos valores daquele dia.
+//* Visualização clara de picos de gasto e tendências.
+
 import React, { useState } from "react";
 import Tesseract from "tesseract.js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -987,36 +1180,24 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 );
 
 export default function OCRApp() {
-  const [images, setImages] = useState([]);
   const [dados, setDados] = useState([]);
-  const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
-  const handleImageUpload = (event) => {
-    const files = Array.from(event.target.files);
-    setImages(files.map((f) => URL.createObjectURL(f)));
-    files.forEach((file) => processImage(file));
-  };
 
   const processImage = (file) => {
-    Tesseract.recognize(file, "por", {
-      logger: (m) => console.log(m),
-    }).then(({ data: { text } }) => {
+    Tesseract.recognize(file, "por").then(({ data: { text } }) => {
       parseDados(text);
     });
   };
 
   const parseDados = (textoExtraido) => {
     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-    const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
     const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
     const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
     const modalidade = textoExtraido.includes("CRÉDITO")
@@ -1027,202 +1208,41 @@ export default function OCRApp() {
 
     setDados((prev) => [
       ...prev,
-      { Data: data, Hora: hora, Valor: valorNum || 0, Modalidade: modalidade },
+      { Data: data, Valor: valorNum || 0, Modalidade: modalidade },
     ]);
   };
 
-  // Filtro
-  const filteredData = dados.filter((d) =>
-    Object.values(d).some((val) =>
-      String(val).toLowerCase().includes(search.toLowerCase()),
-    ),
-  );
-
-  // Paginação
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
-
-  const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
-
-  // Gráfico: somatório por modalidade
-  const somaCredito = dados
-    .filter((d) => d.Modalidade === "Crédito")
-    .reduce((acc, d) => acc + d.Valor, 0);
-  const somaDebito = dados
-    .filter((d) => d.Modalidade === "Débito")
-    .reduce((acc, d) => acc + d.Valor, 0);
+  // Agrupar valores por data
+  const valoresPorDia = dados.reduce((acc, d) => {
+    if (!acc[d.Data]) acc[d.Data] = 0;
+    acc[d.Data] += d.Valor;
+    return acc;
+  }, {});
 
   const chartData = {
-    labels: ["Crédito", "Débito"],
+    labels: Object.keys(valoresPorDia),
     datasets: [
       {
-        label: "Total em R$",
-        data: [somaCredito, somaDebito],
-        backgroundColor: ["#4CAF50", "#2196F3"],
+        label: "Total por dia (R$)",
+        data: Object.values(valoresPorDia),
+        borderColor: "#FF5722",
+        backgroundColor: "rgba(255,87,34,0.2)",
+        tension: 0.3,
       },
     ],
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>OCR de Comprovantes (Múltiplos)</h2>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleImageUpload}
-      />
-
-      <h3>Filtro de busca:</h3>
-      <input
-        type="text"
-        placeholder="Pesquisar por data, valor ou modalidade..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: "10px", width: "300px" }}
-      />
-
-      <h3>Dados estruturados:</h3>
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Hora</th>
-            <th>Valor</th>
-            <th>Modalidade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((d, i) => (
-            <tr key={i}>
-              <td>{d.Data}</td>
-              <td>{d.Hora}</td>
-              <td>{d.Valor.toFixed(2)}</td>
-              <td>{d.Modalidade}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {totalPages > 1 && (
-        <div style={{ marginTop: "10px" }}>
-          <button
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-          <span style={{ margin: "0 10px" }}>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            Próxima
-          </button>
-        </div>
-      )}
-
-      {dados.length > 0 && (
-        <>
-          <div style={{ marginTop: "20px", width: "500px" }}>
-            <h3>Análise: Total por Modalidade</h3>
-            <Bar data={chartData} />
-          </div>
-
-          <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-            <button onClick={() => alert("Excel export aqui")}>
-              Exportar para Excel
-            </button>
-            <button onClick={() => alert("CSV export aqui")}>
-              Exportar para CSV
-            </button>
-            <button onClick={() => alert("PDF export aqui")}>
-              Exportar para PDF
-            </button>
-          </div>
-        </>
+      <h2>Gráfico de Gastos por Dia</h2>
+      {dados.length > 0 ? (
+        <Line data={chartData} />
+      ) : (
+        <p>Adicione comprovantes para gerar o gráfico.</p>
       )}
     </div>
   );
 }
-//* /////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Versão: 10.0
-// O que esse upgrade traz
-// Gráfico de linha mostrando a evolução dos gastos ao longo dos dias.Cada ponto no gráfico representa o somatório dos valores daquele dia.
-// Visualização clara de picos de gasto e tendências.
-
-// import React, { useState } from "react";
-// import Tesseract from "tesseract.js";
-// import * as XLSX from "xlsx";
-// import { saveAs } from "file-saver";
-// import jsPDF from "jspdf";
-// import "jspdf-autotable";
-// import { Line } from "react-chartjs-2";
-// import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-
-// ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-// export default function OCRApp() {
-//   const [dados, setDados] = useState([]);
-
-//   const processImage = (file) => {
-//     Tesseract.recognize(file, "por").then(({ data: { text } }) => {
-//       parseDados(text);
-//     });
-//   };
-
-//   const parseDados = (textoExtraido) => {
-//     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-//     const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
-//     const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
-//     const modalidade = textoExtraido.includes("CRÉDITO")
-//       ? "Crédito"
-//       : textoExtraido.includes("DÉBITO")
-//       ? "Débito"
-//       : "";
-
-//     setDados((prev) => [...prev, { Data: data, Valor: valorNum || 0, Modalidade: modalidade }]);
-//   };
-
-//   // Agrupar valores por data
-//   const valoresPorDia = dados.reduce((acc, d) => {
-//     if (!acc[d.Data]) acc[d.Data] = 0;
-//     acc[d.Data] += d.Valor;
-//     return acc;
-//   }, {});
-
-//   const chartData = {
-//     labels: Object.keys(valoresPorDia),
-//     datasets: [
-//       {
-//         label: "Total por dia (R$)",
-//         data: Object.values(valoresPorDia),
-//         borderColor: "#FF5722",
-//         backgroundColor: "rgba(255,87,34,0.2)",
-//         tension: 0.3,
-//       },
-//     ],
-//   };
-
-//   return (
-//     <div style={{ padding: "20px" }}>
-//       <h2>Gráfico de Gastos por Dia</h2>
-//       {dados.length > 0 ? (
-//         <Line data={chartData} />
-//       ) : (
-//         <p>Adicione comprovantes para gerar o gráfico.</p>
-//       )}
-//     </div>
-//   );
-// }
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 11.0
 // O que esse upgrade traz
