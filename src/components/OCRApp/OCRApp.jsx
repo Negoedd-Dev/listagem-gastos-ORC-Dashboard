@@ -173,126 +173,29 @@
 // O que mudou?
 // Adicionamos a biblioteca xlsx para criar a planilha. Usamos json_to_sheet para converter os dados em aba Excel.
 // O arquivo é baixado como dados_comprovante.xlsx.
-import React, { useState } from "react";
-import Tesseract from "tesseract.js";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-
-export default function OCRApp() {
-  const [image, setImage] = useState(null);
-  const [text, setText] = useState("");
-  const [dados, setDados] = useState([]);
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-      processImage(file);
-    }
-  };
-
-  const processImage = (file) => {
-    Tesseract.recognize(file, "por", {
-      logger: (m) => console.log(m),
-    }).then(({ data: { text } }) => {
-      setText(text);
-      parseDados(text);
-    });
-  };
-
-  const parseDados = (textoExtraido) => {
-    const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-    const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
-    const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
-    const modalidade = textoExtraido.includes("CRÉDITO")
-      ? "Crédito"
-      : textoExtraido.includes("DÉBITO")
-        ? "Débito"
-        : "";
-
-    setDados([
-      { campo: "Data da compra", valor: data },
-      { campo: "Horário da compra", valor: hora },
-      { campo: "Valor da compra", valor: valor },
-      { campo: "Modalidade", valor: modalidade },
-    ]);
-  };
-
-  const exportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dados);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    saveAs(blob, "dados_comprovante.xlsx");
-  };
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>OCR de Comprovantes</h2>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      {image && <img src={image} alt="Comprovante" width="300" />}
-      <h3>Texto extraído:</h3>
-      <pre>{text}</pre>
-      <h3>Dados estruturados:</h3>
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Campo</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dados.map((d, i) => (
-            <tr key={i}>
-              <td>{d.campo}</td>
-              <td>{d.valor}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {dados.length > 0 && (
-        <button onClick={exportExcel} style={{ marginTop: "10px" }}>
-          Exportar para Excel
-        </button>
-      )}
-    </div>
-  );
-}
-//* /////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Versão: 4.0
-// O que esse upgrade faz
-// Permite upload múltiplo de imagens. Processa cada comprovante com OCR e acumula os registros em um array.
-// Gera um Excel único com todos os comprovantes processados.
-
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
 // import * as XLSX from "xlsx";
 // import { saveAs } from "file-saver";
 
 // export default function OCRApp() {
-//   const [images, setImages] = useState([]);
+//   const [image, setImage] = useState(null);
+//   const [text, setText] = useState("");
 //   const [dados, setDados] = useState([]);
 
 //   const handleImageUpload = (event) => {
-//     const files = Array.from(event.target.files);
-//     setImages(files.map((f) => URL.createObjectURL(f)));
-
-//     files.forEach((file) => processImage(file));
+//     const file = event.target.files[0];
+//     if (file) {
+//       setImage(URL.createObjectURL(file));
+//       processImage(file);
+//     }
 //   };
 
 //   const processImage = (file) => {
 //     Tesseract.recognize(file, "por", {
 //       logger: (m) => console.log(m),
 //     }).then(({ data: { text } }) => {
+//       setText(text);
 //       parseDados(text);
 //     });
 //   };
@@ -307,14 +210,11 @@ export default function OCRApp() {
 //         ? "Débito"
 //         : "";
 
-//     setDados((prev) => [
-//       ...prev,
-//       {
-//         Data: data,
-//         Hora: hora,
-//         Valor: valor,
-//         Modalidade: modalidade,
-//       },
+//     setDados([
+//       { campo: "Data da compra", valor: data },
+//       { campo: "Horário da compra", valor: hora },
+//       { campo: "Valor da compra", valor: valor },
+//       { campo: "Modalidade", valor: modalidade },
 //     ]);
 //   };
 
@@ -332,52 +232,152 @@ export default function OCRApp() {
 //       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 //     });
 
-//     saveAs(blob, "comprovantes.xlsx");
+//     saveAs(blob, "dados_comprovante.xlsx");
 //   };
 
 //   return (
 //     <div style={{ padding: "20px" }}>
-//       <h2>OCR de Comprovantes (Múltiplos)</h2>
-//       <input
-//         type="file"
-//         accept="image/*"
-//         multiple
-//         onChange={handleImageUpload}
-//       />
-//       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-//         {images.map((img, i) => (
-//           <img key={i} src={img} alt={`Comprovante ${i}`} width="200" />
-//         ))}
-//       </div>
+//       <h2>OCR de Comprovantes</h2>
+//       <input type="file" accept="image/*" onChange={handleImageUpload} />
+//       {image && <img src={image} alt="Comprovante" width="300" />}
+//       <h3>Texto extraído:</h3>
+//       <pre>{text}</pre>
 //       <h3>Dados estruturados:</h3>
 //       <table border="1" cellPadding="5">
 //         <thead>
 //           <tr>
-//             <th>Data</th>
-//             <th>Hora</th>
+//             <th>Campo</th>
 //             <th>Valor</th>
-//             <th>Modalidade</th>
 //           </tr>
 //         </thead>
 //         <tbody>
 //           {dados.map((d, i) => (
 //             <tr key={i}>
-//               <td>{d.Data}</td>
-//               <td>{d.Hora}</td>
-//               <td>{d.Valor}</td>
-//               <td>{d.Modalidade}</td>
+//               <td>{d.campo}</td>
+//               <td>{d.valor}</td>
 //             </tr>
 //           ))}
 //         </tbody>
 //       </table>
 //       {dados.length > 0 && (
 //         <button onClick={exportExcel} style={{ marginTop: "10px" }}>
-//           Exportar todos para Excel
+//           Exportar para Excel
 //         </button>
 //       )}
 //     </div>
 //   );
 // }
+//* /////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão: 4.0
+// O que esse upgrade faz:
+// Permite upload múltiplo de imagens. Processa cada comprovante com OCR e acumula os registros em um array.
+// Gera um Excel único com todos os comprovantes processados.
+
+import React, { useState } from "react";
+import Tesseract from "tesseract.js";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+export default function OCRApp() {
+  const [images, setImages] = useState([]);
+  const [dados, setDados] = useState([]);
+
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    setImages(files.map((f) => URL.createObjectURL(f)));
+
+    files.forEach((file) => processImage(file));
+  };
+
+  const processImage = (file) => {
+    Tesseract.recognize(file, "por", {
+      logger: (m) => console.log(m),
+    }).then(({ data: { text } }) => {
+      parseDados(text);
+    });
+  };
+
+  const parseDados = (textoExtraido) => {
+    const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
+    const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
+    const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
+    const modalidade = textoExtraido.includes("CRÉDITO")
+      ? "Crédito"
+      : textoExtraido.includes("DÉBITO")
+        ? "Débito"
+        : "";
+
+    setDados((prev) => [
+      ...prev,
+      {
+        Data: data,
+        Hora: hora,
+        Valor: valor,
+        Modalidade: modalidade,
+      },
+    ]);
+  };
+
+  const exportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(dados);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "comprovantes.xlsx");
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>OCR de Comprovantes (Múltiplos)</h2>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleImageUpload}
+      />
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        {images.map((img, i) => (
+          <img key={i} src={img} alt={`Comprovante ${i}`} width="200" />
+        ))}
+      </div>
+      <h3>Dados estruturados:</h3>
+      <table border="1" cellPadding="5">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Valor</th>
+            <th>Modalidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dados.map((d, i) => (
+            <tr key={i}>
+              <td>{d.Data}</td>
+              <td>{d.Hora}</td>
+              <td>{d.Valor}</td>
+              <td>{d.Modalidade}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {dados.length > 0 && (
+        <button onClick={exportExcel} style={{ marginTop: "10px" }}>
+          Exportar todos para Excel
+        </button>
+      )}
+    </div>
+  );
+}
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 5.0
 // O que esse upgrade traz
