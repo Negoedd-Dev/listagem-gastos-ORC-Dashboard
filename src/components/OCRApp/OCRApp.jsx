@@ -73,8 +73,8 @@
 
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // * Versão: 2.0
-// O que foi adicionado: Função exportCSV que gera um arquivo .csv com os dados;
-// Botão que aparece quando há dados extraídos e o usuário baixa o arquivo direto no navegador.
+//* O que foi adicionado: Função exportCSV que gera um arquivo .csv com os dados;
+//* Botão que aparece quando há dados extraídos e o usuário baixa o arquivo direto no navegador.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
@@ -170,9 +170,10 @@
 
 //* ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão:3.0
-// O que mudou?
-// Adicionamos a biblioteca xlsx para criar a planilha. Usamos json_to_sheet para converter os dados em aba Excel.
-// O arquivo é baixado como dados_comprovante.xlsx.
+//* O que mudou?
+//* Adicionamos a biblioteca xlsx para criar a planilha. Usamos json_to_sheet para converter os dados em aba Excel.
+//* O arquivo é baixado como dados_comprovante.xlsx.
+
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
 // import * as XLSX from "xlsx";
@@ -269,9 +270,9 @@
 // }
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 4.0
-// O que esse upgrade faz:
-// Permite upload múltiplo de imagens. Processa cada comprovante com OCR e acumula os registros em um array.
-// Gera um Excel único com todos os comprovantes processados.
+//* O que esse upgrade faz:
+//* Permite upload múltiplo de imagens. Processa cada comprovante com OCR e acumula os registros em um array.
+//* Gera um Excel único com todos os comprovantes processados.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
@@ -380,9 +381,9 @@
 // }
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 5.0
-// O que esse upgrade traz
-// Agora o usuário pode escolher entre Excel (.xlsx) ou CSV (.csv). // O CSV é mais leve e universal, enquanto o Excel permite planilhas mais ricas.
-// Ambos os botões aparecem apenas quando há dados extraídos.
+//* O que esse upgrade traz
+//* Agora o usuário pode escolher entre Excel (.xlsx) ou CSV (.csv). // O CSV é mais leve e universal, enquanto o Excel permite planilhas mais ricas.
+//* Ambos os botões aparecem apenas quando há dados extraídos.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
@@ -503,9 +504,9 @@
 // }
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 6.0
-// O que esse upgrade traz
-// Agora você tem três formatos de exportação: Excel, CSV e PDF.O PDF gera um relatório pronto para impressão com título e tabela organizada.
-// O usuário pode escolher o formato que melhor se adapta ao uso final.
+//* O que esse upgrade traz
+//* Agora você tem três formatos de exportação: Excel, CSV e PDF.O PDF gera um relatório pronto para impressão com título e tabela organizada.
+//* O usuário pode escolher o formato que melhor se adapta ao uso final.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
@@ -628,11 +629,12 @@
 //     </div>
 //   );
 // }
-// //* /////////////////////////////////////////////////////////////////////////////////////////////////////
-// //* Versão: 7.0
-// // O que esse upgrade traz
-// // Campo de busca que filtra a tabela em tempo real.O filtro funciona para qualquer coluna (data, hora, valor, modalidade).
-// // Mantém todas as opções de exportação (Excel, CSV, PDF).
+//* /////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão: 7.0
+//* O que esse upgrade traz
+//* Campo de busca que filtra a tabela em tempo real.O filtro funciona para qualquer coluna (data, hora, valor, modalidade).
+//* Mantém todas as opções de exportação (Excel, CSV, PDF).
+
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
 // import * as XLSX from "xlsx";
@@ -786,7 +788,7 @@
 //* Versão: 8.0
 //* O que esse upgrade traz
 //* Paginação dinâmica: controla quantos registros aparecem por página.Botões de Anterior/Próxima para navegar.
-// // Mostra o número da página atual e total de páginas.Funciona junto com o filtro de busca.
+//* Mostra o número da página atual e total de páginas.Funciona junto com o filtro de busca.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
@@ -963,9 +965,9 @@
 // }
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 9.0
-// O que esse upgrade traz
-// Gráfico de barras mostrando o total em R$ por modalidade (Crédito/Débito).Integração com Chart.js via react-chartjs-2.
-// Dashboard visual junto com tabela, filtro e paginação.
+//* O que esse upgrade traz
+//* Gráfico de barras mostrando o total em R$ por modalidade (Crédito/Débito).Integração com Chart.js via react-chartjs-2.
+//* Dashboard visual junto com tabela, filtro e paginação.
 
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
