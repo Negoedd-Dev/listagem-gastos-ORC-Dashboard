@@ -76,104 +76,8 @@
 // O que foi adicionado: Função exportCSV que gera um arquivo .csv com os dados;
 // Botão que aparece quando há dados extraídos e o usuário baixa o arquivo direto no navegador.
 
-import React, { useState } from "react";
-import Tesseract from "tesseract.js";
-
-export default function OCRApp() {
-  const [image, setImage] = useState(null);
-  const [text, setText] = useState("");
-  const [dados, setDados] = useState([]);
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-      processImage(file);
-    }
-  };
-
-  const processImage = (file) => {
-    Tesseract.recognize(file, "por", {
-      logger: (m) => console.log(m),
-    }).then(({ data: { text } }) => {
-      setText(text);
-      parseDados(text);
-    });
-  };
-
-  const parseDados = (textoExtraido) => {
-    const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-    const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
-    const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
-    const modalidade = textoExtraido.includes("CRÉDITO")
-      ? "Crédito"
-      : textoExtraido.includes("DÉBITO")
-        ? "Débito"
-        : "";
-
-    setDados([
-      { campo: "Data da compra", valor: data },
-      { campo: "Horário da compra", valor: hora },
-      { campo: "Valor da compra", valor: valor },
-      { campo: "Modalidade", valor: modalidade },
-    ]);
-  };
-
-  const exportCSV = () => {
-    const header = "Campo,Valor\n";
-    const rows = dados.map((d) => `${d.campo},${d.valor}`).join("\n");
-    const csvContent = header + rows;
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "dados_comprovante.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>OCR de Comprovantes</h2>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      {image && <img src={image} alt="Comprovante" width="300" />}
-      <h3>Texto extraído:</h3>
-      <pre>{text}</pre>
-      <h3>Dados estruturados:</h3>
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Campo</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dados.map((d, i) => (
-            <tr key={i}>
-              <td>{d.campo}</td>
-              <td>{d.valor}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {dados.length > 0 && (
-        <button onClick={exportCSV} style={{ marginTop: "10px" }}>
-          Exportar para CSV
-        </button>
-      )}
-    </div>
-  );
-}
-
-//* ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Versão:3.0
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
-// import * as XLSX from "xlsx";
-// import { saveAs } from "file-saver";
 
 // export default function OCRApp() {
 //   const [image, setImage] = useState(null);
@@ -215,21 +119,20 @@ export default function OCRApp() {
 //     ]);
 //   };
 
-//   const exportExcel = () => {
-//     const worksheet = XLSX.utils.json_to_sheet(dados);
-//     const workbook = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
+//   const exportCSV = () => {
+//     const header = "Campo,Valor\n";
+//     const rows = dados.map((d) => `${d.campo},${d.valor}`).join("\n");
+//     const csvContent = header + rows;
 
-//     const excelBuffer = XLSX.write(workbook, {
-//       bookType: "xlsx",
-//       type: "array",
-//     });
+//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//     const url = URL.createObjectURL(blob);
 
-//     const blob = new Blob([excelBuffer], {
-//       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//     });
-
-//     saveAs(blob, "dados_comprovante.xlsx");
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.setAttribute("download", "dados_comprovante.csv");
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
 //   };
 
 //   return (
@@ -257,13 +160,113 @@ export default function OCRApp() {
 //         </tbody>
 //       </table>
 //       {dados.length > 0 && (
-//         <button onClick={exportExcel} style={{ marginTop: "10px" }}>
-//           Exportar para Excel
+//         <button onClick={exportCSV} style={{ marginTop: "10px" }}>
+//           Exportar para CSV
 //         </button>
 //       )}
 //     </div>
 //   );
 // }
+
+//* ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão:3.0
+// O que mudou?
+// Adicionamos a biblioteca xlsx para criar a planilha. Usamos json_to_sheet para converter os dados em aba Excel.
+// O arquivo é baixado como dados_comprovante.xlsx.
+import React, { useState } from "react";
+import Tesseract from "tesseract.js";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+export default function OCRApp() {
+  const [image, setImage] = useState(null);
+  const [text, setText] = useState("");
+  const [dados, setDados] = useState([]);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImage(URL.createObjectURL(file));
+      processImage(file);
+    }
+  };
+
+  const processImage = (file) => {
+    Tesseract.recognize(file, "por", {
+      logger: (m) => console.log(m),
+    }).then(({ data: { text } }) => {
+      setText(text);
+      parseDados(text);
+    });
+  };
+
+  const parseDados = (textoExtraido) => {
+    const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
+    const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
+    const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
+    const modalidade = textoExtraido.includes("CRÉDITO")
+      ? "Crédito"
+      : textoExtraido.includes("DÉBITO")
+        ? "Débito"
+        : "";
+
+    setDados([
+      { campo: "Data da compra", valor: data },
+      { campo: "Horário da compra", valor: hora },
+      { campo: "Valor da compra", valor: valor },
+      { campo: "Modalidade", valor: modalidade },
+    ]);
+  };
+
+  const exportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(dados);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "dados_comprovante.xlsx");
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>OCR de Comprovantes</h2>
+      <input type="file" accept="image/*" onChange={handleImageUpload} />
+      {image && <img src={image} alt="Comprovante" width="300" />}
+      <h3>Texto extraído:</h3>
+      <pre>{text}</pre>
+      <h3>Dados estruturados:</h3>
+      <table border="1" cellPadding="5">
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dados.map((d, i) => (
+            <tr key={i}>
+              <td>{d.campo}</td>
+              <td>{d.valor}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {dados.length > 0 && (
+        <button onClick={exportExcel} style={{ marginTop: "10px" }}>
+          Exportar para Excel
+        </button>
+      )}
+    </div>
+  );
+}
 //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 //* Versão: 4.0
 // O que esse upgrade faz
