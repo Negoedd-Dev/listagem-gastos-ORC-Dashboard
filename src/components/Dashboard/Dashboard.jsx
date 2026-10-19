@@ -432,7 +432,7 @@
 import React, { useState, useEffect } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 
-function Dashboard({ dados }) {
+export default function Dashboard({ dados }) {
   const [darkMode, setDarkMode] = useState(false);
 
   // Carregar preferência do tema ao iniciar
@@ -556,5 +556,3 @@ function Dashboard({ dados }) {
     </div>
   );
 }
-
-export default Dashboard;
