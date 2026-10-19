@@ -1,8 +1,9 @@
-import { useState } from "react";
+import react, { useState } from "react";
 import EstilosGlobais from "./styles/EstilosGlobais";
 import "./App.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
+import OCRApp from "./components/OCRApp";
 
 function App() {
   return (
@@ -10,7 +11,9 @@ function App() {
       <EstilosGlobais />
       <Header />
       <div className="container">
-        <div className="form-container"></div>
+        <div className="form-container">
+          <OCRApp />
+        </div>
       </div>
       <Footer />
     </>
