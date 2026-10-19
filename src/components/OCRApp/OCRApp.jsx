@@ -1159,102 +1159,33 @@
 //* Gráfico de linha mostrando a evolução dos gastos ao longo dos dias.Cada ponto no gráfico representa o somatório dos valores daquele dia.
 //* Visualização clara de picos de gasto e tendências.
 
-import React, { useState } from "react";
-import Tesseract from "tesseract.js";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-);
-
-export default function OCRApp() {
-  const [dados, setDados] = useState([]);
-
-  const processImage = (file) => {
-    Tesseract.recognize(file, "por").then(({ data: { text } }) => {
-      parseDados(text);
-    });
-  };
-
-  const parseDados = (textoExtraido) => {
-    const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-    const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
-    const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
-    const modalidade = textoExtraido.includes("CRÉDITO")
-      ? "Crédito"
-      : textoExtraido.includes("DÉBITO")
-        ? "Débito"
-        : "";
-
-    setDados((prev) => [
-      ...prev,
-      { Data: data, Valor: valorNum || 0, Modalidade: modalidade },
-    ]);
-  };
-
-  // Agrupar valores por data
-  const valoresPorDia = dados.reduce((acc, d) => {
-    if (!acc[d.Data]) acc[d.Data] = 0;
-    acc[d.Data] += d.Valor;
-    return acc;
-  }, {});
-
-  const chartData = {
-    labels: Object.keys(valoresPorDia),
-    datasets: [
-      {
-        label: "Total por dia (R$)",
-        data: Object.values(valoresPorDia),
-        borderColor: "#FF5722",
-        backgroundColor: "rgba(255,87,34,0.2)",
-        tension: 0.3,
-      },
-    ],
-  };
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Gráfico de Gastos por Dia</h2>
-      {dados.length > 0 ? (
-        <Line data={chartData} />
-      ) : (
-        <p>Adicione comprovantes para gerar o gráfico.</p>
-      )}
-    </div>
-  );
-}
-//* /////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Versão: 11.0
-// O que esse upgrade traz
-// Gráfico de pizza mostrando a proporção de gastos entre Crédito e Débito.Cores distintas para cada modalidade.
-// Visualização rápida e intuitiva da distribuição dos valores.
-
 // import React, { useState } from "react";
 // import Tesseract from "tesseract.js";
-// import { Pie } from "react-chartjs-2";
-// import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+// import { Line } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
 
-// ChartJS.register(ArcElement, Tooltip, Legend);
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// );
 
 // export default function OCRApp() {
 //   const [dados, setDados] = useState([]);
@@ -1266,6 +1197,7 @@ export default function OCRApp() {
 //   };
 
 //   const parseDados = (textoExtraido) => {
+//     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
 //     const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
 //     const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
 //     const modalidade = textoExtraido.includes("CRÉDITO")
@@ -1276,37 +1208,105 @@ export default function OCRApp() {
 
 //     setDados((prev) => [
 //       ...prev,
-//       { Valor: valorNum || 0, Modalidade: modalidade },
+//       { Data: data, Valor: valorNum || 0, Modalidade: modalidade },
 //     ]);
 //   };
 
-//   // Somatório por modalidade
-//   const somaCredito = dados
-//     .filter((d) => d.Modalidade === "Crédito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
-//   const somaDebito = dados
-//     .filter((d) => d.Modalidade === "Débito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
+//   // Agrupar valores por data
+//   const valoresPorDia = dados.reduce((acc, d) => {
+//     if (!acc[d.Data]) acc[d.Data] = 0;
+//     acc[d.Data] += d.Valor;
+//     return acc;
+//   }, {});
 
 //   const chartData = {
-//     labels: ["Crédito", "Débito"],
+//     labels: Object.keys(valoresPorDia),
 //     datasets: [
 //       {
-//         data: [somaCredito, somaDebito],
-//         backgroundColor: ["#FF6384", "#36A2EB"],
-//         hoverBackgroundColor: ["#FF4364", "#1E90FF"],
+//         label: "Total por dia (R$)",
+//         data: Object.values(valoresPorDia),
+//         borderColor: "#FF5722",
+//         backgroundColor: "rgba(255,87,34,0.2)",
+//         tension: 0.3,
 //       },
 //     ],
 //   };
 
 //   return (
 //     <div style={{ padding: "20px" }}>
-//       <h2>Proporção de Gastos</h2>
+//       <h2>Gráfico de Gastos por Dia</h2>
 //       {dados.length > 0 ? (
-//         <Pie data={chartData} />
+//         <Line data={chartData} />
 //       ) : (
 //         <p>Adicione comprovantes para gerar o gráfico.</p>
 //       )}
 //     </div>
 //   );
 // }
+//* /////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão: 11.0
+//* O que esse upgrade traz
+//* Gráfico de pizza mostrando a proporção de gastos entre Crédito e Débito.Cores distintas para cada modalidade.
+//* Visualização rápida e intuitiva da distribuição dos valores.
+
+import React, { useState } from "react";
+import Tesseract from "tesseract.js";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+export default function OCRApp() {
+  const [dados, setDados] = useState([]);
+
+  const processImage = (file) => {
+    Tesseract.recognize(file, "por").then(({ data: { text } }) => {
+      parseDados(text);
+    });
+  };
+
+  const parseDados = (textoExtraido) => {
+    const valorStr = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
+    const valorNum = parseFloat(valorStr.replace("R$", "").replace(",", "."));
+    const modalidade = textoExtraido.includes("CRÉDITO")
+      ? "Crédito"
+      : textoExtraido.includes("DÉBITO")
+        ? "Débito"
+        : "";
+
+    setDados((prev) => [
+      ...prev,
+      { Valor: valorNum || 0, Modalidade: modalidade },
+    ]);
+  };
+
+  // Somatório por modalidade
+  const somaCredito = dados
+    .filter((d) => d.Modalidade === "Crédito")
+    .reduce((acc, d) => acc + d.Valor, 0);
+  const somaDebito = dados
+    .filter((d) => d.Modalidade === "Débito")
+    .reduce((acc, d) => acc + d.Valor, 0);
+
+  const chartData = {
+    labels: ["Crédito", "Débito"],
+    datasets: [
+      {
+        data: [somaCredito, somaDebito],
+        backgroundColor: ["#FF6384", "#36A2EB"],
+        hoverBackgroundColor: ["#FF4364", "#1E90FF"],
+      },
+    ],
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Proporção de Gastos</h2>
+      {dados.length > 0 ? (
+        <Pie data={chartData} />
+      ) : (
+        <p>Adicione comprovantes para gerar o gráfico.</p>
+      )}
+    </div>
+  );
+}
