@@ -384,10 +384,135 @@
 // Agora o usuário pode escolher entre Excel (.xlsx) ou CSV (.csv). // O CSV é mais leve e universal, enquanto o Excel permite planilhas mais ricas.
 // Ambos os botões aparecem apenas quando há dados extraídos.
 
+// import React, { useState } from "react";
+// import Tesseract from "tesseract.js";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
+
+// export default function OCRApp() {
+//   const [images, setImages] = useState([]);
+//   const [dados, setDados] = useState([]);
+
+//   const handleImageUpload = (event) => {
+//     const files = Array.from(event.target.files);
+//     setImages(files.map((f) => URL.createObjectURL(f)));
+
+//     files.forEach((file) => processImage(file));
+//   };
+
+//   const processImage = (file) => {
+//     Tesseract.recognize(file, "por", {
+//       logger: (m) => console.log(m),
+//     }).then(({ data: { text } }) => {
+//       parseDados(text);
+//     });
+//   };
+
+//   const parseDados = (textoExtraido) => {
+//     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
+//     const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
+//     const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
+//     const modalidade = textoExtraido.includes("CRÉDITO")
+//       ? "Crédito"
+//       : textoExtraido.includes("DÉBITO")
+//         ? "Débito"
+//         : "";
+
+//     setDados((prev) => [
+//       ...prev,
+//       {
+//         Data: data,
+//         Hora: hora,
+//         Valor: valor,
+//         Modalidade: modalidade,
+//       },
+//     ]);
+//   };
+
+//   const exportExcel = () => {
+//     const worksheet = XLSX.utils.json_to_sheet(dados);
+//     const workbook = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
+
+//     const excelBuffer = XLSX.write(workbook, {
+//       bookType: "xlsx",
+//       type: "array",
+//     });
+
+//     const blob = new Blob([excelBuffer], {
+//       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+//     });
+
+//     saveAs(blob, "comprovantes.xlsx");
+//   };
+
+//   const exportCSV = () => {
+//     const header = "Data,Hora,Valor,Modalidade\n";
+//     const rows = dados
+//       .map((d) => `${d.Data},${d.Hora},${d.Valor},${d.Modalidade}`)
+//       .join("\n");
+//     const csvContent = header + rows;
+
+//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//     saveAs(blob, "comprovantes.csv");
+//   };
+
+//   return (
+//     <div style={{ padding: "20px" }}>
+//       <h2>OCR de Comprovantes (Múltiplos)</h2>
+//       <input
+//         type="file"
+//         accept="image/*"
+//         multiple
+//         onChange={handleImageUpload}
+//       />
+//       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+//         {images.map((img, i) => (
+//           <img key={i} src={img} alt={`Comprovante ${i}`} width="200" />
+//         ))}
+//       </div>
+//       <h3>Dados estruturados:</h3>
+//       <table border="1" cellPadding="5">
+//         <thead>
+//           <tr>
+//             <th>Data</th>
+//             <th>Hora</th>
+//             <th>Valor</th>
+//             <th>Modalidade</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {dados.map((d, i) => (
+//             <tr key={i}>
+//               <td>{d.Data}</td>
+//               <td>{d.Hora}</td>
+//               <td>{d.Valor}</td>
+//               <td>{d.Modalidade}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//       {dados.length > 0 && (
+//         <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+//           <button onClick={exportExcel}>Exportar para Excel</button>
+//           <button onClick={exportCSV}>Exportar para CSV</button>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+//* /////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Versão: 6.0
+// O que esse upgrade traz
+// Agora você tem três formatos de exportação: Excel, CSV e PDF.O PDF gera um relatório pronto para impressão com título e tabela organizada.
+// O usuário pode escolher o formato que melhor se adapta ao uso final.
+
 import React, { useState } from "react";
 import Tesseract from "tesseract.js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function OCRApp() {
   const [images, setImages] = useState([]);
@@ -396,7 +521,6 @@ export default function OCRApp() {
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     setImages(files.map((f) => URL.createObjectURL(f)));
-
     files.forEach((file) => processImage(file));
   };
 
@@ -420,12 +544,7 @@ export default function OCRApp() {
 
     setDados((prev) => [
       ...prev,
-      {
-        Data: data,
-        Hora: hora,
-        Valor: valor,
-        Modalidade: modalidade,
-      },
+      { Data: data, Hora: hora, Valor: valor, Modalidade: modalidade },
     ]);
   };
 
@@ -433,16 +552,13 @@ export default function OCRApp() {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
-
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-
     saveAs(blob, "comprovantes.xlsx");
   };
 
@@ -452,9 +568,19 @@ export default function OCRApp() {
       .map((d) => `${d.Data},${d.Hora},${d.Valor},${d.Modalidade}`)
       .join("\n");
     const csvContent = header + rows;
-
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     saveAs(blob, "comprovantes.csv");
+  };
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Relatório de Comprovantes", 14, 20);
+    doc.autoTable({
+      head: [["Data", "Hora", "Valor", "Modalidade"]],
+      body: dados.map((d) => [d.Data, d.Hora, d.Valor, d.Modalidade]),
+      startY: 30,
+    });
+    doc.save("comprovantes.pdf");
   };
 
   return (
@@ -496,128 +622,12 @@ export default function OCRApp() {
         <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
           <button onClick={exportExcel}>Exportar para Excel</button>
           <button onClick={exportCSV}>Exportar para CSV</button>
+          <button onClick={exportPDF}>Exportar para PDF</button>
         </div>
       )}
     </div>
   );
 }
-//* /////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Versão: 6.0
-// O que esse upgrade traz
-// Agora você tem três formatos de exportação: Excel, CSV e PDF.O PDF gera um relatório pronto para impressão com título e tabela organizada.
-// O usuário pode escolher o formato que melhor se adapta ao uso final.
-
-// import React, { useState } from "react";
-// import Tesseract from "tesseract.js";
-// import * as XLSX from "xlsx";
-// import { saveAs } from "file-saver";
-// import jsPDF from "jspdf";
-// import "jspdf-autotable";
-
-// export default function OCRApp() {
-//   const [images, setImages] = useState([]);
-//   const [dados, setDados] = useState([]);
-
-//   const handleImageUpload = (event) => {
-//     const files = Array.from(event.target.files);
-//     setImages(files.map((f) => URL.createObjectURL(f)));
-//     files.forEach((file) => processImage(file));
-//   };
-
-//   const processImage = (file) => {
-//     Tesseract.recognize(file, "por", {
-//       logger: (m) => console.log(m),
-//     }).then(({ data: { text } }) => {
-//       parseDados(text);
-//     });
-//   };
-
-//   const parseDados = (textoExtraido) => {
-//     const data = textoExtraido.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "";
-//     const hora = textoExtraido.match(/\d{2}:\d{2}/)?.[0] || "";
-//     const valor = textoExtraido.match(/R?\$?\s?\d+,\d{2}/)?.[0] || "";
-//     const modalidade = textoExtraido.includes("CRÉDITO")
-//       ? "Crédito"
-//       : textoExtraido.includes("DÉBITO")
-//       ? "Débito"
-//       : "";
-
-//     setDados((prev) => [
-//       ...prev,
-//       { Data: data, Hora: hora, Valor: valor, Modalidade: modalidade },
-//     ]);
-//   };
-
-//   const exportExcel = () => {
-//     const worksheet = XLSX.utils.json_to_sheet(dados);
-//     const workbook = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(workbook, worksheet, "Comprovantes");
-//     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-//     const blob = new Blob([excelBuffer], {
-//       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//     });
-//     saveAs(blob, "comprovantes.xlsx");
-//   };
-
-//   const exportCSV = () => {
-//     const header = "Data,Hora,Valor,Modalidade\n";
-//     const rows = dados.map((d) => `${d.Data},${d.Hora},${d.Valor},${d.Modalidade}`).join("\n");
-//     const csvContent = header + rows;
-//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     saveAs(blob, "comprovantes.csv");
-//   };
-
-//   const exportPDF = () => {
-//     const doc = new jsPDF();
-//     doc.text("Relatório de Comprovantes", 14, 20);
-//     doc.autoTable({
-//       head: [["Data", "Hora", "Valor", "Modalidade"]],
-//       body: dados.map((d) => [d.Data, d.Hora, d.Valor, d.Modalidade]),
-//       startY: 30,
-//     });
-//     doc.save("comprovantes.pdf");
-//   };
-
-//   return (
-//     <div style={{ padding: "20px" }}>
-//       <h2>OCR de Comprovantes (Múltiplos)</h2>
-//       <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
-//       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-//         {images.map((img, i) => (
-//           <img key={i} src={img} alt={`Comprovante ${i}`} width="200" />
-//         ))}
-//       </div>
-//       <h3>Dados estruturados:</h3>
-//       <table border="1" cellPadding="5">
-//         <thead>
-//           <tr>
-//             <th>Data</th>
-//             <th>Hora</th>
-//             <th>Valor</th>
-//             <th>Modalidade</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {dados.map((d, i) => (
-//             <tr key={i}>
-//               <td>{d.Data}</td>
-//               <td>{d.Hora}</td>
-//               <td>{d.Valor}</td>
-//               <td>{d.Modalidade}</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//       {dados.length > 0 && (
-//         <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-//           <button onClick={exportExcel}>Exportar para Excel</button>
-//           <button onClick={exportCSV}>Exportar para CSV</button>
-//           <button onClick={exportPDF}>Exportar para PDF</button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 // //* /////////////////////////////////////////////////////////////////////////////////////////////////////
 // //* Versão: 7.0
 // // O que esse upgrade traz
