@@ -10,7 +10,7 @@ const EstilosGlobais = createGlobalStyle`
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'roboto', sans-serif;
 }
 
 .container {
@@ -32,6 +32,31 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
+.admin {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 500px);
+  padding: 20px; 
+}
+
+.form-admin {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 800px;
+  border-radius: 8px;
+  padding: 20px;
+  background: rgba(173, 216, 230, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  gap: 7px;
+
+}
+
 `;
 
 export default EstilosGlobais;
