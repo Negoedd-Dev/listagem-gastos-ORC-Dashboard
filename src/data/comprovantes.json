@@ -1,0 +1,33 @@
+[
+  {
+    "Data": "2026-10-20",
+    "Hora": "09:00",
+    "Valor": 100,
+    "Modalidade": "Crédito"
+  },
+  {
+    "Data": "2026-10-20",
+    "Hora": "10:00",
+    "Valor": 50,
+    "Modalidade": "Débito"
+  },
+  {
+    "Data": "2026-10-21",
+    "Hora": "11:00",
+    "Valor": 200,
+    "Modalidade": "Crédito"
+  },
+  {
+    "Data": "2026-10-20",
+    "Hora": "09:54",
+    "Valor": 125,
+    "Modalidade": "Crédito"
+  },
+  {
+    "Data": "2026-10-20",
+    "Hora": "08:50",
+    "Valor": 350,
+    "Modalidade": "Crédito"
+  },
+  { "Data": "2026-10-22", "Hora": "07:50", "Valor": 50, "Modalidade": "Débito" }
+]

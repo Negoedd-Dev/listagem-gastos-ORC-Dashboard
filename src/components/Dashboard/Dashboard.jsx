@@ -157,7 +157,7 @@
 //   Legend,
 // );
 
-// function Dashboard({ dados }) {
+// export default function Dashboard({ dados, onLogout }) {
 //   const [activeTab, setActiveTab] = useState("tabela");
 
 //   // Somatórios
@@ -212,6 +212,13 @@
 //   return (
 //     <div style={{ padding: "20px" }}>
 //       <h2>Dashboard de Comprovantes</h2>
+//       <button
+//         className="btn btn-danger"
+//         onClick={onLogout}
+//         style={{ marginBottom: "20px" }}
+//       >
+//         Logout
+//       </button>
 
 //       {/* Abas */}
 //       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
@@ -299,32 +306,83 @@
 //     </div>
 //   );
 // }
-
-// export default Dashboard;
-//* ============================================================================================================================
-//* Versão 3.0
-//* O que esse upgrade traz.
-//* Alternância entre modo claro e modo escuro com um simples botão.Estilos adaptados para fundo, texto e cards.
-//* Experiência visual mais agradável e moderna, especialmente em ambientes noturnos.
-
+//* =============================================================================================================================
+// //* O que mudou:
+// //* Agora você tem CRUD completo na aba de tabela. Pode editar os dados extraídos pelo OCR (corrigir CNPJ, Razão Social etc.).
+// //* Pode remover registros indesejados. Pode adicionar novos registros manualmente.
+// //* Os gráficos se atualizam automaticamente conforme o estado registros.
+// //* Versão 3.0
 // import React, { useState } from "react";
 // import { Bar, Line, Pie } from "react-chartjs-2";
+// import Tabela from "../tabela";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   PointElement,
+//   LineElement,
+//   ArcElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
 
-// function Dashboard({ dados }) {
-//   const [darkMode, setDarkMode] = useState(false);
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   PointElement,
+//   LineElement,
+//   ArcElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// );
+
+// export default function Dashboard({ dados, onLogout }) {
+//   // Estado local para permitir CRUD
+//   const [registros, setRegistros] = useState(dados);
+//   const [activeTab, setActiveTab] = useState("tabela");
+
+//   // Funções CRUD
+//   const editar = (index, campo, valor) => {
+//     const copia = [...registros];
+//     copia[index][campo] = valor;
+//     setRegistros(copia);
+//   };
+
+//   const remover = (index) => {
+//     setRegistros(registros.filter((_, i) => i !== index));
+//   };
+
+//   const adicionar = () => {
+//     setRegistros([
+//       ...registros,
+//       {
+//         Data: "",
+//         Hora: "",
+//         Valor: 0,
+//         Modalidade: "",
+//         CNPJ: "",
+//         RazaoSocial: "",
+//       },
+//     ]);
+//   };
 
 //   // Somatórios
-//   const somaCredito = dados
+//   const somaCredito = registros
 //     .filter((d) => d.Modalidade === "Crédito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
-//   const somaDebito = dados
+//     .reduce((acc, d) => acc + Number(d.Valor), 0);
+
+//   const somaDebito = registros
 //     .filter((d) => d.Modalidade === "Débito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
+//     .reduce((acc, d) => acc + Number(d.Valor), 0);
 
 //   // Agrupar por dia
-//   const valoresPorDia = dados.reduce((acc, d) => {
+//   const valoresPorDia = registros.reduce((acc, d) => {
 //     if (!acc[d.Data]) acc[d.Data] = 0;
-//     acc[d.Data] += d.Valor;
+//     acc[d.Data] += Number(d.Valor);
 //     return acc;
 //   }, {});
 
@@ -363,228 +421,202 @@
 //   };
 
 //   return (
-//     <div
-//       style={{
-//         padding: "20px",
-//         backgroundColor: darkMode ? "#121212" : "#f5f5f5",
-//         color: darkMode ? "#e0e0e0" : "#000",
-//         minHeight: "100vh",
-//       }}
-//     >
+//     <div style={{ padding: "20px" }}>
 //       <h2>Dashboard de Comprovantes</h2>
-
-//       {/* Botão para alternar tema */}
 //       <button
-//         onClick={() => setDarkMode(!darkMode)}
+//         className="btn btn-danger"
+//         onClick={onLogout}
 //         style={{ marginBottom: "20px" }}
 //       >
-//         Alternar para {darkMode ? "Modo Claro" : "Modo Escuro"}
+//         Logout
 //       </button>
 
-//       <div
-//         style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
-//       >
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
+//       {/* Abas */}
+//       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+//         <button
+//           onClick={() => setActiveTab("tabela")}
+//           style={{ background: activeTab === "tabela" ? "#ddd" : "#fff" }}
 //         >
-//           <h3>Total por Modalidade</h3>
-//           <Bar data={barData} />
-//         </div>
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
+//           Tabela
+//         </button>
+//         <button
+//           onClick={() => setActiveTab("graficos")}
+//           style={{ background: activeTab === "graficos" ? "#ddd" : "#fff" }}
 //         >
-//           <h3>Evolução dos Gastos</h3>
-//           <Line data={lineData} />
-//         </div>
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
-//         >
-//           <h3>Proporção Crédito/Débito</h3>
-//           <Pie data={pieData} />
-//         </div>
+//           Gráficos
+//         </button>
 //       </div>
+
+//       {/* Conteúdo das abas */}
+//       {activeTab === "tabela" && (
+//         <div>
+//           <h3>Dados estruturados</h3>
+//           <table border="1" cellPadding="5">
+//             <thead>
+//               <tr>
+//                 <th>Data</th>
+//                 <th>Hora</th>
+//                 <th>Valor</th>
+//                 <th>Modalidade</th>
+//                 <th>CNPJ</th>
+//                 <th>Razão Social</th>
+//                 <th>Ações</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {registros.map((d, i) => (
+//                 <tr key={i}>
+//                   <td>
+//                     <input
+//                       value={d.Data}
+//                       onChange={(e) => editar(i, "Data", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <input
+//                       value={d.Hora}
+//                       onChange={(e) => editar(i, "Hora", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <input
+//                       value={d.Valor}
+//                       onChange={(e) => editar(i, "Valor", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <input
+//                       value={d.Modalidade}
+//                       onChange={(e) => editar(i, "Modalidade", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <input
+//                       value={d.CNPJ || ""}
+//                       onChange={(e) => editar(i, "CNPJ", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <input
+//                       value={d.RazaoSocial || ""}
+//                       onChange={(e) => editar(i, "RazaoSocial", e.target.value)}
+//                     />
+//                   </td>
+//                   <td>
+//                     <button onClick={() => remover(i)}>Remover</button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//           <button onClick={adicionar} style={{ marginTop: "10px" }}>
+//             Adicionar novo
+//           </button>
+//         </div>
+//       )}
+
+//       {activeTab === "graficos" && (
+//         <div
+//           style={{
+//             display: "grid",
+//             gridTemplateColumns: "1fr 1fr",
+//             gap: "20px",
+//           }}
+//         >
+//           <div
+//             style={{
+//               border: "1px solid #ccc",
+//               padding: "10px",
+//               borderRadius: "8px",
+//             }}
+//           >
+//             <h3>Total por Modalidade</h3>
+//             <Bar data={barData} />
+//           </div>
+//           <div
+//             style={{
+//               border: "1px solid #ccc",
+//               padding: "10px",
+//               borderRadius: "8px",
+//             }}
+//           >
+//             <h3>Evolução dos Gastos</h3>
+//             <Line data={lineData} />
+//           </div>
+//           <div
+//             style={{
+//               border: "1px solid #ccc",
+//               padding: "10px",
+//               borderRadius: "8px",
+//             }}
+//           >
+//             <h3>Proporção Crédito/Débito</h3>
+//             <Pie data={pieData} />
+//           </div>
+//         </div>
+//       )}
 //     </div>
 //   );
 // }
-
-// export default Dashboard;
-//* ========================================================================================================
+//* =====================================================================================================================================
+//* O Dashboard agora mostra somente os gráficos. A tabela fica separada em Tabela.jsx, que você pode renderizar em outra tela ou aba.
+//* O código fica mais modular e fácil de manter.
 //* Versão 4.0
-//* O que esse upgrade traz.
-//* O tema escolhido (claro ou escuro) é salvo no LocalStorage.Ao reabrir a aplicação, o usuário já vê o tema que escolheu anteriormente.
-//* Experiência personalizada e persistente, como em apps profissionais.
 
-// import React, { useState, useEffect } from "react";
-// import { Bar, Line, Pie } from "react-chartjs-2";
-
-// export default function Dashboard({ dados }) {
-//   const [darkMode, setDarkMode] = useState(false);
-
-//   // Carregar preferência do tema ao iniciar
-//   useEffect(() => {
-//     const savedTheme = localStorage.getItem("theme");
-//     if (savedTheme === "dark") {
-//       setDarkMode(true);
-//     }
-//   }, []);
-
-//   // Salvar preferência sempre que mudar
-//   useEffect(() => {
-//     localStorage.setItem("theme", darkMode ? "dark" : "light");
-//   }, [darkMode]);
-
-//   // Somatórios
-//   const somaCredito = dados
-//     .filter((d) => d.Modalidade === "Crédito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
-//   const somaDebito = dados
-//     .filter((d) => d.Modalidade === "Débito")
-//     .reduce((acc, d) => acc + d.Valor, 0);
-
-//   // Agrupar por dia
-//   const valoresPorDia = dados.reduce((acc, d) => {
-//     if (!acc[d.Data]) acc[d.Data] = 0;
-//     acc[d.Data] += d.Valor;
-//     return acc;
-//   }, {});
-
-//   // Dados dos gráficos
-//   const barData = {
-//     labels: ["Crédito", "Débito"],
-//     datasets: [
-//       {
-//         label: "Total em R$",
-//         data: [somaCredito, somaDebito],
-//         backgroundColor: ["#4CAF50", "#2196F3"],
-//       },
-//     ],
-//   };
-
-//   const lineData = {
-//     labels: Object.keys(valoresPorDia),
-//     datasets: [
-//       {
-//         label: "Total por dia (R$)",
-//         data: Object.values(valoresPorDia),
-//         borderColor: "#FF5722",
-//         tension: 0.3,
-//       },
-//     ],
-//   };
-
-//   const pieData = {
-//     labels: ["Crédito", "Débito"],
-//     datasets: [
-//       {
-//         data: [somaCredito, somaDebito],
-//         backgroundColor: ["#FF6384", "#36A2EB"],
-//       },
-//     ],
-//   };
-
-//   return (
-//     <div
-//       style={{
-//         padding: "20px",
-//         backgroundColor: darkMode ? "#121212" : "#f5f5f5",
-//         color: darkMode ? "#e0e0e0" : "#000",
-//         minHeight: "100vh",
-//       }}
-//     >
-//       <h2>Dashboard de Comprovantes</h2>
-
-//       {/* Botão para alternar tema */}
-//       <button
-//         onClick={() => setDarkMode(!darkMode)}
-//         style={{ marginBottom: "20px" }}
-//       >
-//         Alternar para {darkMode ? "Modo Claro" : "Modo Escuro"}
-//       </button>
-
-//       <div
-//         style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
-//       >
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
-//         >
-//           <h3>Total por Modalidade</h3>
-//           <Bar data={barData} />
-//         </div>
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
-//         >
-//           <h3>Evolução dos Gastos</h3>
-//           <Line data={lineData} />
-//         </div>
-//         <div
-//           style={{
-//             border: "1px solid #ccc",
-//             padding: "10px",
-//             borderRadius: "8px",
-//             backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-//           }}
-//         >
-//           <h3>Proporção Crédito/Débito</h3>
-//           <Pie data={pieData} />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-//* ===========================================================================================================================
-//* Versão 5.0
-import React from "react";
+import React, { useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-function Dashboard({ dados, tokens }) {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+);
+
+export default function Dashboard({ dados, onLogout }) {
+  const [activeTab, setActiveTab] = useState("graficos");
+
   // Somatórios
   const somaCredito = dados
     .filter((d) => d.Modalidade === "Crédito")
-    .reduce((acc, d) => acc + d.Valor, 0);
+    .reduce((acc, d) => acc + Number(d.Valor), 0);
+
   const somaDebito = dados
     .filter((d) => d.Modalidade === "Débito")
-    .reduce((acc, d) => acc + d.Valor, 0);
+    .reduce((acc, d) => acc + Number(d.Valor), 0);
 
   // Agrupar por dia
   const valoresPorDia = dados.reduce((acc, d) => {
     if (!acc[d.Data]) acc[d.Data] = 0;
-    acc[d.Data] += d.Valor;
+    acc[d.Data] += Number(d.Valor);
     return acc;
   }, {});
 
-  // Configurações dos gráficos usando tokens
+  // Dados dos gráficos
   const barData = {
     labels: ["Crédito", "Débito"],
     datasets: [
       {
         label: "Total em R$",
         data: [somaCredito, somaDebito],
-        backgroundColor: [tokens.colors.primary, tokens.colors.danger],
+        backgroundColor: ["#4CAF50", "#2196F3"],
       },
     ],
   };
@@ -595,8 +627,7 @@ function Dashboard({ dados, tokens }) {
       {
         label: "Total por dia (R$)",
         data: Object.values(valoresPorDia),
-        borderColor: tokens.colors.success,
-        backgroundColor: tokens.colors.success,
+        borderColor: "#FF5722",
         tension: 0.3,
       },
     ],
@@ -607,65 +638,81 @@ function Dashboard({ dados, tokens }) {
     datasets: [
       {
         data: [somaCredito, somaDebito],
-        backgroundColor: [tokens.colors.ocean, tokens.colors.sunset],
+        backgroundColor: ["#FF6384", "#36A2EB"],
       },
     ],
   };
 
-  // Opções globais para adaptar texto/legendas ao tema
-  const options = {
-    plugins: {
-      legend: {
-        labels: {
-          color: tokens.colors.text,
-        },
-      },
-    },
-    scales: {
-      x: { ticks: { color: tokens.colors.text } },
-      y: { ticks: { color: tokens.colors.text } },
-    },
-  };
-
   return (
-    <div style={{ color: tokens.colors.text }}>
+    <div style={{ padding: "20px" }}>
+      {activeTab === "tabela" && (
+        <Tabela
+          registros={registros}
+          editar={editar}
+          remover={remover}
+          adicionar={adicionar}
+        />
+      )}
       <h2>Dashboard de Comprovantes</h2>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+      <button
+        className="btn btn-danger"
+        onClick={onLogout}
+        style={{ marginBottom: "20px" }}
       >
-        <div
-          style={{
-            backgroundColor: tokens.colors.background,
-            padding: "10px",
-            borderRadius: "8px",
-          }}
+        Logout
+      </button>
+
+      {/* Abas */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <button
+          onClick={() => setActiveTab("graficos")}
+          style={{ background: activeTab === "graficos" ? "#ddd" : "#fff" }}
         >
-          <h3>Total por Modalidade</h3>
-          <Bar data={barData} options={options} />
-        </div>
-        <div
-          style={{
-            backgroundColor: tokens.colors.background,
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <h3>Evolução dos Gastos</h3>
-          <Line data={lineData} options={options} />
-        </div>
-        <div
-          style={{
-            backgroundColor: tokens.colors.background,
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <h3>Proporção Crédito/Débito</h3>
-          <Pie data={pieData} options={options} />
-        </div>
+          Gráficos
+        </button>
       </div>
+
+      {/* Conteúdo das abas */}
+      {activeTab === "graficos" && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <h3>Total por Modalidade</h3>
+            <Bar data={barData} />
+          </div>
+          <div
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <h3>Evolução dos Gastos</h3>
+            <Line data={lineData} />
+          </div>
+          <div
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <h3>Proporção Crédito/Débito</h3>
+            <Pie data={pieData} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-export default Dashboard;
