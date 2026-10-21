@@ -593,6 +593,14 @@ ChartJS.register(
 export default function Dashboard({ dados, onLogout }) {
   const [activeTab, setActiveTab] = useState("graficos");
 
+  // dentro do Dashboard
+  const editar = (index, campo, valor) => {
+    const copia = [...registros];
+    copia[index][campo] = valor;
+    setRegistros(copia);
+    onUpdateDados(copia); // atualiza no usuário logado
+  };
+
   // Somatórios
   const somaCredito = dados
     .filter((d) => d.Modalidade === "Crédito")
