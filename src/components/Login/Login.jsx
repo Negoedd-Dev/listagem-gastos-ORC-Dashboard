@@ -60,27 +60,33 @@ export default function Login({ onLogin, onRegister }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>{modo === "login" ? "Login" : "Cadastro"}</h2>
+      <h2 className="title-login">{modo === "login" ? "Login" : "Cadastro"}</h2>
       <input
+        className="dados"
         type="text"
         placeholder="Usuário"
         value={nome}
         onChange={(e) => setNome(e.target.value)}
       />
       <input
+        className="dados"
         type="password"
         placeholder="Senha"
         value={senha}
         onChange={(e) => setSenha(e.target.value)}
       />
-      <button type="submit">{modo === "login" ? "Entrar" : "Cadastrar"}</button>
+      <button className="btn-success" type="submit">
+        {modo === "login" ? "Entrar" : "Cadastrar"}
+      </button>
       <p>
         {modo === "login" ? (
-          <span onClick={() => setModo("cadastro")}>
+          <span className="siga" onClick={() => setModo("cadastro")}>
             Não tem conta? Cadastre-se
           </span>
         ) : (
-          <span onClick={() => setModo("login")}>Já tem conta? Faça login</span>
+          <span className="siga" onClick={() => setModo("login")}>
+            Já tem conta? Faça login
+          </span>
         )}
       </p>
     </form>

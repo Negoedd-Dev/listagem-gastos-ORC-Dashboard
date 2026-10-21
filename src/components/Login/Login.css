@@ -24,6 +24,15 @@ form {
   border-radius: 8px;
 }
 
-.btn-primary {
+.btn-success {
   width: 18rem;
+  height: 2.5em;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.siga {
+  text-decoration: underline;
+  cursor: pointer;
 }
