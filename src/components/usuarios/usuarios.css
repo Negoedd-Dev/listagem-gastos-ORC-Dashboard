@@ -1,0 +1,47 @@
+.header-admin {
+  font-size: 35px;
+}
+
+.header-acao {
+  font-size: 25px;
+  margin-top: 1.3em;
+}
+
+.data {
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+}
+
+.adc {
+  width: 30.5rem;
+  font-size: 15px;
+}
+
+.user-cads {
+  border-radius: 8px;
+  border: none;
+}
+
+.actions {
+  width: 4rem;
+  height: 23px;
+  border: none;
+  border-radius: 4px;
+}
+
+.title-actions {
+  border: 1px solid black;
+  border-radius: 8px;
+}
+
+.data-info {
+  border: none;
+}
+
+.info-cads {
+  width: 12.5rem;
+  height: 1.7em;
+  border: none;
+  border-radius: 4px;
+}
