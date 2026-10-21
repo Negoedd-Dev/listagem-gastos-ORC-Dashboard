@@ -214,20 +214,107 @@
 // }
 //* ===============================================================================================================
 //* Versão 5.0
-import React, { useState } from "react";
-import EstilosGlobais from "./styles/EstilosGlobais";
+// import React, { useState } from "react";
+// import EstilosGlobais from "./styles/EstilosGlobais";
+// import Header from "./components/header";
+// import Login from "./components/Login/Login";
+// import Dashboard from "./components/Dashboard/Dashboard";
+// import Usuarios from "./components/usuarios/Usuarios";
+// import Footer from "./components/footer";
+
+// export default function App() {
+//   const [usuarios, setUsuarios] = useState([
+//     { id: 1, nome: "admin", senha: "1234", dados: [] },
+//   ]);
+//   const [usuarioLogado, setUsuarioLogado] = useState(null);
+//   const [activeTab, setActiveTab] = useState("login");
+
+//   const handleLogin = (nome, senha) => {
+//     const usuario = usuarios.find((u) => u.nome === nome && u.senha === senha);
+//     if (usuario) {
+//       setUsuarioLogado(usuario);
+//       if (usuario.nome === "admin" && usuario.senha === "1234") {
+//         setActiveTab("admin");
+//       } else {
+//         setActiveTab("dashboard");
+//       }
+//     } else {
+//       alert("Usuário ou senha inválidos!");
+//     }
+//   };
+
+//   const handleRegister = (nome, senha) => {
+//     if (usuarios.some((u) => u.nome === nome)) {
+//       alert("Usuário já existe!");
+//       return;
+//     }
+//     const novoUsuario = { id: Date.now(), nome, senha, dados: [] };
+//     setUsuarios([...usuarios, novoUsuario]);
+//     setUsuarioLogado(novoUsuario);
+//     setActiveTab("dashboard");
+//   };
+
+//   const atualizarDadosUsuario = (novosDados) => {
+//     const copia = usuarios.map((u) =>
+//       u.id === usuarioLogado.id ? { ...u, dados: novosDados } : u,
+//     );
+//     setUsuarios(copia);
+//     setUsuarioLogado({ ...usuarioLogado, dados: novosDados });
+//   };
+
+//   return (
+//     <>
+//       <EstilosGlobais />
+//       <Header />
+//       <div className="container">
+//         <div className="form-container">
+//           {activeTab === "login" && (
+//             <Login onLogin={handleLogin} onRegister={handleRegister} />
+//           )}
+//           {activeTab === "dashboard" && usuarioLogado && (
+//             <Dashboard
+//               dados={usuarioLogado.dados}
+//               onLogout={() => setActiveTab("login")}
+//               onUpdateDados={atualizarDadosUsuario}
+//             />
+//           )}
+//           {activeTab === "admin" && (
+//             <Usuarios usuarios={usuarios} setUsuarios={setUsuarios} />
+//           )}
+//         </div>
+//       </div>
+//       <Footer />
+//     </>
+//   );
+// }
+//* ================================================================================================================================
+//* Versão 6.0
+//* Resultado
+//* Tela inicial enxuta: só login/cadastro. Admin (admin/1234) → tela administrativa com CRUD de usuários.
+//* Usuário comum → Dashboard com CRUD de comprovantes e gráficos. Tudo salvo em LocalStorage, então os dados permanecem mesmo após fechar o navegador.
+
+import React, { useState, useEffect } from "react";
+import EstilosGobais from "./styles/EstilosGlobais";
 import Header from "./components/header";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
-import Usuarios from "./components/usuarios/Usuarios";
+import Usuarios from "./components/Usuarios/Usuarios";
 import Footer from "./components/footer";
 
 export default function App() {
-  const [usuarios, setUsuarios] = useState([
-    { id: 1, nome: "admin", senha: "1234", dados: [] },
-  ]);
+  const [usuarios, setUsuarios] = useState(() => {
+    const saved = localStorage.getItem("usuarios");
+    return saved
+      ? JSON.parse(saved)
+      : [{ id: 1, nome: "admin", senha: "1234", dados: [] }];
+  });
   const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [activeTab, setActiveTab] = useState("login");
+
+  // Persistência automática
+  useEffect(() => {
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  }, [usuarios]);
 
   const handleLogin = (nome, senha) => {
     const usuario = usuarios.find((u) => u.nome === nome && u.senha === senha);
@@ -264,10 +351,10 @@ export default function App() {
 
   return (
     <>
-      <EstilosGlobais />
+      <EstilosGobais />
       <Header />
       <div className="container">
-        <div className="form-container">
+        <div className="for-container">
           {activeTab === "login" && (
             <Login onLogin={handleLogin} onRegister={handleRegister} />
           )}
