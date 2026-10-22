@@ -1,4 +1,5 @@
 import React from "react";
+import "./Tabela.css";
 
 export default function Tabela({ registros, editar, remover, adicionar }) {
   return (
