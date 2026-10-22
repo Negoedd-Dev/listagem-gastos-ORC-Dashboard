@@ -293,41 +293,252 @@
 //* Tela inicial enxuta: só login/cadastro. Admin (admin/1234) → tela administrativa com CRUD de usuários.
 //* Usuário comum → Dashboard com CRUD de comprovantes e gráficos. Tudo salvo em LocalStorage, então os dados permanecem mesmo após fechar o navegador.
 
+// import React, { useState, useEffect } from "react";
+// import EstilosGobais from "./styles/EstilosGlobais";
+// import Header from "./components/header";
+// import Login from "./components/Login/Login";
+// import Dashboard from "./components/Dashboard/Dashboard";
+// import Usuarios from "./components/Usuarios/Usuarios";
+// import Footer from "./components/footer";
+
+// export default function App() {
+//   const [usuarios, setUsuarios] = useState(() => {
+//     const saved = localStorage.getItem("usuarios");
+//     return saved
+//       ? JSON.parse(saved)
+//       : [{ id: 1, nome: "admin", senha: "1234", dados: [] }];
+//   });
+//   const [usuarioLogado, setUsuarioLogado] = useState(null);
+//   const [activeTab, setActiveTab] = useState("login");
+
+//   // Persistência automática
+//   useEffect(() => {
+//     localStorage.setItem("usuarios", JSON.stringify(usuarios));
+//   }, [usuarios]);
+
+//   const handleLogin = (nome, senha) => {
+//     const usuario = usuarios.find((u) => u.nome === nome && u.senha === senha);
+//     if (usuario) {
+//       setUsuarioLogado(usuario);
+//       if (usuario.nome === "admin" && usuario.senha === "1234") {
+//         setActiveTab("admin");
+//       } else {
+//         setActiveTab("dashboard");
+//       }
+//     } else {
+//       alert("Usuário ou senha inválidos!");
+//     }
+//   };
+
+//   const handleRegister = (nome, senha) => {
+//     if (usuarios.some((u) => u.nome === nome)) {
+//       alert("Usuário já existe!");
+//       return;
+//     }
+//     const novoUsuario = { id: Date.now(), nome, senha, dados: [] };
+//     setUsuarios([...usuarios, novoUsuario]);
+//     setUsuarioLogado(novoUsuario);
+//     setActiveTab("dashboard");
+//   };
+
+//   const atualizarDadosUsuario = (novosDados) => {
+//     const copia = usuarios.map((u) =>
+//       u.id === usuarioLogado.id ? { ...u, dados: novosDados } : u,
+//     );
+//     setUsuarios(copia);
+//     setUsuarioLogado({ ...usuarioLogado, dados: novosDados });
+//   };
+
+//   return (
+//     <>
+//       <EstilosGobais />
+//       <Header />
+//       <div className="container">
+//         <div className="for-container">
+//           {activeTab === "login" && (
+//             <Login onLogin={handleLogin} onRegister={handleRegister} />
+//           )}
+//           {activeTab === "dashboard" && usuarioLogado && (
+//             <Dashboard
+//               dados={usuarioLogado.dados}
+//               onLogout={() => setActiveTab("login")}
+//               onUpdateDados={atualizarDadosUsuario}
+//             />
+//           )}
+//           {activeTab === "admin" && (
+//             <Usuarios usuarios={usuarios} setUsuarios={setUsuarios} />
+//           )}
+//         </div>
+//       </div>
+//       <Footer />
+//     </>
+//   );
+// }
+//* ================================================================================================================================
+//* Versão 7.0
+//* Resultado
+//* A tela inicial é somente login/cadastro. Se logar como admin/1234, vai direto para /admin, onde o administrador controla os usuários.
+//* Se logar como usuário comum, vai para /dashboard, com CRUD de comprovantes e gráficos.A navegação é clara e moderna, cada tela isolada em sua rota.
+
+// import React, { useState, useEffect } from "react";
+// import {
+//   BrowserRouter as Router,
+//   Routes,
+//   Route,
+//   Navigate,
+//   useNavigate,
+// } from "react-router-dom";
+// import EstilosGlobais from "./styles/EstilosGlobais";
+// import Header from "./components/header";
+// import Login from "./components/Login/Login";
+// import Dashboard from "./components/Dashboard/Dashboard";
+// import Usuarios from "./components/usuarios/Usuarios";
+// import Footer from "./components/footer";
+
+// export default function App() {
+//   const [usuarios, setUsuarios] = useState(() => {
+//     const saved = localStorage.getItem("usuarios");
+//     return saved
+//       ? JSON.parse(saved)
+//       : [{ id: 1, nome: "admin", senha: "1234", dados: [] }];
+//   });
+//   const [usuarioLogado, setUsuarioLogado] = useState(null);
+
+//   useEffect(() => {
+//     localStorage.setItem("usuarios", JSON.stringify(usuarios));
+//   }, [usuarios]);
+
+//   const handleLogin = (nome, senha, navigate) => {
+//     const usuario = usuarios.find((u) => u.nome === nome && u.senha === senha);
+//     if (usuario) {
+//       setUsuarioLogado(usuario);
+//       if (usuario.nome === "admin" && usuario.senha === "1234") {
+//         navigate("/admin");
+//       } else {
+//         navigate("/dashboard");
+//       }
+//     } else {
+//       alert("Usuário ou senha inválidos!");
+//     }
+//   };
+
+//   const handleRegister = (nome, senha, navigate) => {
+//     if (usuarios.some((u) => u.nome === nome)) {
+//       alert("Usuário já existe!");
+//       return;
+//     }
+//     const novoUsuario = { id: Date.now(), nome, senha, dados: [] };
+//     setUsuarios([...usuarios, novoUsuario]);
+//     setUsuarioLogado(novoUsuario);
+//     navigate("/dashboard");
+//   };
+
+//   const atualizarDadosUsuario = (novosDados) => {
+//     const copia = usuarios.map((u) =>
+//       u.id === usuarioLogado.id ? { ...u, dados: novosDados } : u,
+//     );
+//     setUsuarios(copia);
+//     setUsuarioLogado({ ...usuarioLogado, dados: novosDados });
+//   };
+
+//   return (
+//     <>
+//       <EstilosGlobais />
+//       <Header />
+//       <div className="container">
+//         <div className="form-container">
+//           <Router>
+//             <Routes>
+//               <Route
+//                 path="/"
+//                 element={
+//                   <Login onLogin={handleLogin} onRegister={handleRegister} />
+//                 }
+//               />
+//               <Route
+//                 path="/dashboard"
+//                 element={
+//                   usuarioLogado && usuarioLogado.nome !== "admin" ? (
+//                     <Dashboard
+//                       dados={usuarioLogado.dados}
+//                       onLogout={() => setUsuarioLogado(null)}
+//                       onUpdateDados={atualizarDadosUsuario}
+//                     />
+//                   ) : (
+//                     <Navigate to="/" />
+//                   )
+//                 }
+//               />
+//               <Route
+//                 path="/admin"
+//                 element={
+//                   usuarioLogado && usuarioLogado.nome === "admin" ? (
+//                     <Usuarios usuarios={usuarios} setUsuarios={setUsuarios} />
+//                   ) : (
+//                     <Navigate to="/" />
+//                   )
+//                 }
+//               />
+//             </Routes>
+//           </Router>
+//         </div>
+//       </div>
+//       <Footer />
+//     </>
+//   );
+// }
+//* ================================================================================================================================
+//* Versão 8.0
+//* Resultado
+//* Agora o login funciona se admin/1234 → vai para /admin. Se usuário comum → vai para /dashboard.
+//* As credenciais do admin estão no .env e podem ser ignoradas no Git.
+//* A tela de login mostra "Contate seu administrador" com dados vindos do .env.
+//* Persistência continua via LocalStorage.
 import React, { useState, useEffect } from "react";
-import EstilosGobais from "./styles/EstilosGlobais";
+import EstilosGlobais from "./styles/EstilosGlobais";
 import Header from "./components/header";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
-import Usuarios from "./components/Usuarios/Usuarios";
+import Usuarios from "./components/usuarios/Usuarios";
+import Layout from "./components/layout/Layout";
 import Footer from "./components/footer";
+
+const ADMIN_USER = import.meta.env.VITE_ADMIN_USER;
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS;
 
 export default function App() {
   const [usuarios, setUsuarios] = useState(() => {
     const saved = localStorage.getItem("usuarios");
-    return saved
-      ? JSON.parse(saved)
-      : [{ id: 1, nome: "admin", senha: "1234", dados: [] }];
+    return saved ? JSON.parse(saved) : [];
   });
   const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [activeTab, setActiveTab] = useState("login");
 
-  // Persistência automática
   useEffect(() => {
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
   }, [usuarios]);
 
   const handleLogin = (nome, senha) => {
+    // Verifica admin
+    if (nome === ADMIN_USER && senha === ADMIN_PASS) {
+      setUsuarioLogado({ nome: ADMIN_USER, senha: ADMIN_PASS, role: "admin" });
+      return "admin";
+    }
+
+    // Verifica usuários comuns
     const usuario = usuarios.find((u) => u.nome === nome && u.senha === senha);
     if (usuario) {
-      setUsuarioLogado(usuario);
-      if (usuario.nome === "admin" && usuario.senha === "1234") {
-        setActiveTab("admin");
-      } else {
-        setActiveTab("dashboard");
-      }
-    } else {
-      alert("Usuário ou senha inválidos!");
+      setUsuarioLogado({ ...usuario, role: "user" });
+      return "user";
     }
+
+    alert("Usuário ou senha inválidos!");
+    return null;
   };
 
   const handleRegister = (nome, senha) => {
@@ -337,8 +548,7 @@ export default function App() {
     }
     const novoUsuario = { id: Date.now(), nome, senha, dados: [] };
     setUsuarios([...usuarios, novoUsuario]);
-    setUsuarioLogado(novoUsuario);
-    setActiveTab("dashboard");
+    setUsuarioLogado({ ...novoUsuario, role: "user" });
   };
 
   const atualizarDadosUsuario = (novosDados) => {
@@ -349,25 +559,54 @@ export default function App() {
     setUsuarioLogado({ ...usuarioLogado, dados: novosDados });
   };
 
+  const logout = () => setUsuarioLogado(null);
+
   return (
     <>
-      <EstilosGobais />
+      <EstilosGlobais />
       <Header />
       <div className="container">
-        <div className="for-container">
-          {activeTab === "login" && (
-            <Login onLogin={handleLogin} onRegister={handleRegister} />
-          )}
-          {activeTab === "dashboard" && usuarioLogado && (
-            <Dashboard
-              dados={usuarioLogado.dados}
-              onLogout={() => setActiveTab("login")}
-              onUpdateDados={atualizarDadosUsuario}
-            />
-          )}
-          {activeTab === "admin" && (
-            <Usuarios usuarios={usuarios} setUsuarios={setUsuarios} />
-          )}
+        <div className="form-container">
+          <Router>
+            <Routes>
+              <Route path="/" element={<Login onLogin={handleLogin} />} />
+
+              {usuarioLogado && (
+                <Route
+                  element={
+                    <Layout usuarioLogado={usuarioLogado} onLogout={logout} />
+                  }
+                >
+                  <Route
+                    path="/dashboard"
+                    element={
+                      usuarioLogado.role === "user" ? (
+                        <Dashboard
+                          dados={usuarioLogado.dados}
+                          onUpdateDados={atualizarDadosUsuario}
+                        />
+                      ) : (
+                        <Navigate to="/admin" />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/admin"
+                    element={
+                      usuarioLogado.role === "admin" ? (
+                        <Usuarios
+                          usuarios={usuarios}
+                          setUsuarios={setUsuarios}
+                        />
+                      ) : (
+                        <Navigate to="/dashboard" />
+                      )
+                    }
+                  />
+                </Route>
+              )}
+            </Routes>
+          </Router>
         </div>
       </div>
       <Footer />
